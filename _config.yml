@@ -109,7 +109,7 @@ analytics:
 # Site Author
 author:
   name             : "Febin Jose"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar           : "/assets/images/author1.png"
   bio              : "Security Enthusiast"
   location         : "India"
   email            : "febinjose5172@gmail.com"
