@@ -3,7 +3,7 @@ main:
   - title: "Home"
     url: /index.html
   - title: "Whoami"
-    url: /whoami
+    url: /about/
   - title: "Posts   "
     url: /year-archive/
   - title: "Categories"
