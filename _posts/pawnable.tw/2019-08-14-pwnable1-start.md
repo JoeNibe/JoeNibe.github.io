@@ -9,9 +9,11 @@ classes: wide
 ### [Pwnable.tw Level 1 - start](https://pwnable.tw/challenge/#1)
 
 file start
-```bash
+```
 itpc@iTPC-LT31:~/Downloads$ file orw
-orw: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=e60ecccd9d01c8217387e8b77e9261a1f36b5030, not stripped
+orw: ELF 32-bit LSB executable, <br>  
+Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32,     
+BuildID[sha1]=e60ecccd9d01c8217387e8b77e9261a1f36b5030, not stripped
 
 ./checksec.sh --file ./start
 itpc@iTPC-LT31:~/Downloads$ ./checksec.sh --file ./start 
@@ -71,13 +73,13 @@ Disassembly of section .text:
 804809e:	31 c0                	xor    eax,eax
 80480a0:	40                   	inc    eax
 80480a1:	cd 80                	int    0x80
-```bash
+``` 
 
 itpc@iTPC-LT31:~/Downloads$ ./start
 Let's start the CTF:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 Segmentation fault (core dumped)
 
-```bash
+```
 gdb-peda$ disas _start 
 Dump of assembler code for function _start:
 0x08048060 <+0>:	push   esp
