@@ -6,7 +6,7 @@ categories: Pwnable.tw
 tags: ctf
 classes: wide
 --- 
-### [Pwnable.tw Level 1 - Start](https://pwnable.tw/challenge/#2)  
+### [Pwnable.tw Level 2 - Orw](https://pwnable.tw/challenge/#2)  
 
 ## Challenge
 ```
