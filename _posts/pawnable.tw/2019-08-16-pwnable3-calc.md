@@ -401,4 +401,4 @@ FLAG{xxxxxxxxxxxxxxxx}
 ### Solved!
 
 ## After Thoughts
-This level was incredibly tough for me. The python script is not very elegant and can be a little confusing. I am sure that it can be written in a better way but I am still a noob. I have tried my best to explain what I did. I saw few other writeups where they have completed this level using much better shellcodes. I have used a very basic shellcode for popping a shell. You could use a much shorter and better shellcodes instead. So I advice you to go checkout other writeups also.
+I found this level to be incredibly tough and the python script is not very elegant and can be a little confusing. I am sure that it can be written in a better way but I am still a noob. I have tried my best to explain what I did. I saw few other writeups where they have completed this level using much better shellcodes. I used a very basic shellcode for popping a shell. You could use a much shorter and better shellcode instead. So I advice you to go checkout other writeups also.
