@@ -3,7 +3,7 @@ layout: single_c
 title:  "Pwnable.tw Level 2 - Orw"
 date:   2019-08-16 1:00:16 +0530
 categories: Pwnable.tw
-tags: ctf
+tags: Binary-Exploitation
 classes: wide
 --- 
 ### [Pwnable.tw Level 2 - Orw](https://pwnable.tw/challenge/#2)  

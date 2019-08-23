@@ -3,7 +3,7 @@ layout: single_c
 title:  "Pwnable.tw Level 1 - Start"
 date:   2019-08-14 1:00:16 +0530
 categories: Pwnable.tw
-tags: ctf
+tags: Binary-Exploitation
 classes: wide
 --- 
 ### [Pwnable.tw Level 1 - Start](https://pwnable.tw/challenge/#1)  
