@@ -1,0 +1,62 @@
+---
+layout: single_c
+title:  "Vulnhub - Kioptrix #1 Writeup"
+date:   2019-10-17 10:43:16 +0530
+categories: OSCP
+tags: Vulnhub
+classes: wide
+---
+### Vulnhub - Kioptrix #1
+
+## Enumeration
+
+#### Nmap
+```bash
+root@kali:~/Desktop/vulnhub/kioptix1# nmap 192.168.56.102 -sC -sV -oA kioptix1
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-12-08 21:04 IST
+Nmap scan report for 192.168.56.102
+Host is up (0.00020s latency).
+Not shown: 994 closed ports
+PORT      STATE SERVICE     VERSION
+22/tcp    open  ssh         OpenSSH 2.9p2 (protocol 1.99)
+| ssh-hostkey: 
+|   1024 b8:74:6c:db:fd:8b:e6:66:e9:2a:2b:df:5e:6f:64:86 (RSA1)
+|   1024 8f:8e:5b:81:ed:21:ab:c1:80:e1:57:a3:3c:85:c4:71 (DSA)
+|_  1024 ed:4e:a9:4a:06:14:ff:15:14:ce:da:3a:80:db:e2:81 (RSA)
+|_sshv1: Server supports SSHv1
+80/tcp    open  http        Apache httpd 1.3.20 ((Unix)  (Red-Hat/Linux) mod_ssl/2.8.4 OpenSSL/0.9.6b)
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Apache/1.3.20 (Unix)  (Red-Hat/Linux) mod_ssl/2.8.4 OpenSSL/0.9.6b
+|_http-title: Test Page for the Apache Web Server on Red Hat Linux
+111/tcp   open  rpcbind     2 (RPC #100000)
+139/tcp   open  netbios-ssn Samba smbd (workgroup: MYGROUP)
+443/tcp   open  ssl/https   Apache/1.3.20 (Unix)  (Red-Hat/Linux) mod_ssl/2.8.4 OpenSSL/0.9.6b
+|_http-server-header: Apache/1.3.20 (Unix)  (Red-Hat/Linux) mod_ssl/2.8.4 OpenSSL/0.9.6b
+|_http-title: 400 Bad Request
+|_ssl-date: 2019-12-08T20:35:42+00:00; +4h59m59s from scanner time.
+| sslv2: 
+|   SSLv2 supported
+|   ciphers: 
+|     SSL2_RC4_128_WITH_MD5
+|     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
+|     SSL2_RC4_64_WITH_MD5
+|     SSL2_RC4_128_EXPORT40_WITH_MD5
+|     SSL2_DES_64_CBC_WITH_MD5
+|     SSL2_DES_192_EDE3_CBC_WITH_MD5
+|_    SSL2_RC2_128_CBC_WITH_MD5
+32768/tcp open  status      1 (RPC #100024)
+MAC Address: 08:00:27:9D:2E:BC (Oracle VirtualBox virtual NIC)
+
+Host script results:
+|_clock-skew: 4h59m58s
+|_nbstat: NetBIOS name: KIOPTRIX, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+|_smb2-time: Protocol negotiation failed (SMB2)
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 140.85 seconds
+```
+
+Lot of outdated services. Lets see what we can exploit.
+
+#### Searchsploit
