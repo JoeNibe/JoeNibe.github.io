@@ -129,7 +129,7 @@ Okay, so at this point I was really struggling to find a way to gain an initial 
 and understood that it is in fact an `RCE` vulnerability and now I am feeling stupid for not reading the exploit properly.
 
 ## Low Priv Shell
-So there is an `metasploit` module for this exploit. Lets try that.
+So there is a `metasploit` module for this exploit. Lets try that.
 
 #### Metasploit
 ```bash
@@ -251,7 +251,7 @@ david@traverxec:~$ cat user.txt
 And we have a user shell
 
 ## Privilege Escalation
-There is an interesting file named `server-stats.sh`. 
+There is an interesting file named `server-stats.sh` in `/bin` directory. Lets see what it does.   
 Running the `server-stats.sh` just prints out some log using `journalctl` and then exits.
 ```bash
 david@traverxec:~/bin$ cat server-stats.sh
