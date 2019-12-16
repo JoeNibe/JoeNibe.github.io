@@ -1,7 +1,7 @@
 ---
 layout: single_c
 title:  "Hack The Box - Traverxec Writeup"
-date:   2019-10-17 10:43:16 +0530
+date:   2019-12-16 10:43:16 +0530
 categories: OSCP
 tags: HTB
 classes: wide
@@ -196,8 +196,9 @@ homedirs_public  public_www
 From the `nostromo` docs
 ```
 HOMEDIRS
-To serve the home directories of your users via HTTP, enable the homedirs option by defining the path in where the home directories are stored, normally /home. 
-To access a users home directory enter a ~ in the URL followed by the home directory name like in this example:
+To serve the home directories of your users via HTTP, enable the homedirs option by defining the path in where the 
+home directories are stored, normally /home. To access a users home directory enter a ~ in the URL followed by the 
+home directory name like in this example:
 
 http://www.nazgul.ch/~hacki/
 ```
