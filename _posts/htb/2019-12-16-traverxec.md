@@ -196,8 +196,9 @@ homedirs_public  public_www
 From the `nostromo` docs
 ```
 HOMEDIRS
-To serve the home directories of your users via HTTP, enable the homedirs option by defining the path in where the  
-home directories are stored, normally /home. To access a users home directory enter a ~ in the URL followed by the 
+To serve the home directories of your users via HTTP, enable the homedirs option by defining the path in where the
+home directories are stored, normally /home.  
+To access a users home directory enter a ~ in the URL followed by the 
 home directory name like in this example:
 
 http://www.nazgul.ch/~hacki/
