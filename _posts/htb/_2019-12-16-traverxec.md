@@ -7,6 +7,7 @@ tags: HTB
 classes: wide
 ---
 ### Hack The Box - Traverxec
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/htbimg/traverxec1.png){: .align-center}
 
 ## Enumeration
 Lets start by enumerating
@@ -209,6 +210,7 @@ So there is a folder named `public_www`, in the folder `/home/david`
 Lets see whats in the there
 
 ```
+##TO DO
 ```
 
 Looks like a backup of ssh files and the private key is encrypted with a pass phrase.
