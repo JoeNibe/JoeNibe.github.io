@@ -37,7 +37,7 @@ Nmap done: 1 IP address (1 host up) scanned in 31.54 seconds
 There is a `nostromo` server running on port 80
 
 #### Searchsploit
-I did a quick search using `searchsploit` and it returned an interesting directory traversal exploit. And it seems to be a recent one.
+I did a quick search using `searchsploit` and it returned an interesting directory traversal exploit. And it seems to be a recent one.  
 [Nostromo Directory Traversal](https://www.exploit-db.com/exploits/47573)
 ```bash
 searchsploit nostromo
@@ -283,7 +283,8 @@ Our aim is to launch a shell from within the `journalctl` command. Journalctl us
 ```bash
 man journalctl | grep width -B 1 -A 2
 
-        The output is paged through less by default, and long lines are "truncated" to screen width. The hidden part can be viewed by using the left-arrow and right-arrow
+        The output is paged through less by default, and long lines are "truncated" to screen width. 
+        The hidden part can be viewed by using the left-arrow and right-arrow
         keys. Paging can be disabled; see the --no-pager option and the "Environment" section below.
 ```
 So if we run this command in a small resized window, it won't exit after printing the log and then we can spawn a shell as `root` user.
