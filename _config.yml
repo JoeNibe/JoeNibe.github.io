@@ -12,7 +12,7 @@
 
 #include: ["_pages"]
 #theme                  : "minimal-mistakes-jekyll"
-remote_theme           : "JoeNibe/JoeNibe.blog_template"
+#remote_theme           : "JoeNibe/JoeNibe.blog_template"
 minimal_mistakes_skin    : "default" # "default" #"air" #, "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
