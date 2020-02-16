@@ -39,7 +39,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 
 So all we have is a web serve on port 80. Checking out the urls in robot.txt just returns a image stating that we are looking at the wrong url. Other enumeration methods turned up empty or useless results. I was banging my head against the wall looking for any possible attack avenue. In the end I has to go online to look for some hints. Turns out that there is a directory named `fristi`. How the hell was I supposed to find that?. Mahn I hate ctf based challenges. So anyways lets see whats in there.
 
-<image
+insert image
     
 We are greeted with a login page. Tried out some `sql` injection, but it seems to invulnerable. Let's check if there is anything interesting in the source code.  
 
