@@ -1,5 +1,5 @@
 ---
-layout: single
+layout: single_c
 title:  "Vulnhub - FristiLeaks #1.3 Writeup"
 date:   2020-02-16 10:43:16 +0530
 categories: Vulnhub
