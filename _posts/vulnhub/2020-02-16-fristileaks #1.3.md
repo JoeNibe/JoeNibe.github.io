@@ -43,7 +43,7 @@ So all we have is a web serve on port 80. Checking out the urls in robot.txt jus
     
 We are greeted with a login page. Tried out some `sql` injection, but it seems to invulnerable. Let's check if there is anything interesting in the source code.  
 
-```
+```bash
 <html>
 <head>
 <meta name="description" content="super leet password login-test page. We use base64 encoding for images so they are inline in the HTML. I read somewhere on the web, that thats a good way to do it.">
@@ -87,6 +87,7 @@ U5ErkJggg==
 -->
     
 ------output snipped----------
+
 ```
 
 So we have a message by user `eezeepz` and we have two images encode in base64.(I didn't you could do that). The second image seems to be commented out. We can use a [base64 to png converter](https://onlinepngtools.com/convert-base64-to-png) to check the contents.
