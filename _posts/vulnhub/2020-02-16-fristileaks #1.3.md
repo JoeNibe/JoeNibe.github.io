@@ -45,20 +45,6 @@ We are greeted with a login page. Tried out some `sql` injection, but it seems t
 
 
 ```html
-
-<html>
-<head>
-<meta name="description" content="super leet password login-test page. We use base64 encoding for images so they are inline in the HTML. I read somewhere on the web, that thats a good way to do it.">
-<!-- 
-TODO:
-We need to clean this up for production. I left some junk in here to make testing easier.
-
-- by eezeepz
--->
-</head>
-<body>
-<center><h1> Welcome to #fristileaks admin portal</h1></center>
-<center><img src="data:img/png;base64,/9j/4AAQSkZJRgABAgAAZABkAAD/7AARRHVja3k
 AAQAEAAAAZAAA/+4ADkFkb2JlAGTAAAAAAf/bAIQAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgICAgICAwMDAwMDAwMDAwEBAQEBAQECAQECAgIBAgIDAwMDA
 
 ------output snipped----------
