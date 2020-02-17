@@ -166,7 +166,7 @@ cat cronresult
 
 Check the permissions on `admin` home directory.
 
-```bah
+```bash
 bash-4.1$ cd /home
 cd /home
 bash-4.1$ ls -la
