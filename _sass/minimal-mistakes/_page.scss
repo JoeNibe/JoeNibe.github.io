@@ -361,10 +361,10 @@
   text-transform: uppercase;
   text-align: right;
   text-decoration: none;
-  background-color: coral;
+  background-color: aliceblue;
   position: fixed; /* Fixed/sticky position */
   bottom: 5%; /* Place the button at the bottom of the page */
-  float: right;/* Place the button 30px from the right */
+  right: 5%;/* Place the button 30px from the right */
   z-index: 99; /* Make sure it does not overlap */
   padding: 15px; /* Some padding */
   border: none; /* Remove borders */
@@ -373,7 +373,7 @@
 }
 
 .back-to-top:hover {  
-  background-color: #555; /* Add a dark-grey background on hover */
+  background-color: darkseagreen; /* Add a dark-grey background on hover */
 }
 /*
    Comments
