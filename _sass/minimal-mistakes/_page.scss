@@ -363,13 +363,11 @@
   text-decoration: none;
   background-color:cornsilk;
   position: fixed; /* Fixed/sticky position */
-  bottom: 5%; /* Place the button at the bottom of the page */
-  right: 5%;/* Place the button 30px from the right */
+  bottom: 20%; /* Place the button at the bottom of the page */
+  right: 20%;/* Place the button 30px from the right */
   z-index: 99; /* Make sure it does not overlap */
   padding: 15px; /* Some padding */
-  border: none; /* Remove borders */
-  outline: none; /* Remove outline */
-  border-radius: 10px; /* Rounded corners */
+  border-radius: 5px; /* Rounded corners */
 }
 
 .back-to-top:hover {  
