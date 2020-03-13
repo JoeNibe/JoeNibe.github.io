@@ -44,7 +44,8 @@ layout: default
         {% endif %}
         {{ content }}
         {% if page.link %}<div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[site.locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}
-          <h2><a href="#top" class="back-to-top">{{ site.data.ui-text[site.locale].back_to_top | default: 'Top' }} &uarr;</a></h2>
+          <!--<h2><a href="#top" class="back-to-top">{{ site.data.ui-text[site.locale].back_to_top | default: 'Top' }} &uarr;</a></h2>-->
+          <a href="#top" class="back-to-top">{{ site.url }}{{ site.baseurl }}/assets/images/top.png</a>
       </section>
 
       <footer class="page__meta">
