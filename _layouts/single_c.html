@@ -35,7 +35,7 @@ layout: default
 
       <section class="page__content" itemprop="text">
         {% if page.toc %}
-          <aside class="sidebar__right {% if page.toc_sticky %}sticky{% endif %}" style="float: right; width: 20%; padding-top: 10%">
+          <aside class="sidebar__right {% if page.toc_sticky %}sticky{% endif %}" style="float: right; width: 20%; padding-top: 5%">
             <nav class="toc">
               <header><h4 class="nav__title"><i class="fas fa-{{ page.toc_icon | default: 'file-alt' }}"></i> {{ page.toc_label | default: site.data.ui-text[site.locale].toc_label | default: "On this page" }}</h4></header>
               {% include toc.html sanitize=true html=content h_min=1 h_max=6 class="toc__menu" %}
@@ -45,7 +45,7 @@ layout: default
         {{ content }}
         {% if page.link %}<div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[site.locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}
           <!--<h2><a href="#top" class="back-to-top">{{ site.data.ui-text[site.locale].back_to_top | default: 'Top' }} &uarr;</a></h2> -->
-          <h2><a href="#top" class="back-to-top"><img style="width: 20%; height: 20%" src="{{ site.url }}{{ site.baseurl }}/assets/images/top.png"></a></a></h2>
+          <h2><a href="#top" ><img class="back-to-top" style="width: 20%; height: 20%" src="{{ site.url }}{{ site.baseurl }}/assets/images/top.png"></a></a></h2>
       </section>
 
       <footer class="page__meta">
