@@ -136,9 +136,9 @@ $medium: 768px !default;
 $medium-wide: 900px !default;
 $large: 1024px !default;
 $x-large: 1280px !default;
-$custom : 90%
+$custom-width : 90%;
 /*$max-width: $x-large !default;*/
-$max-width: $custom;
+$max-width: $custom-width;
 
 /*
    Grid
