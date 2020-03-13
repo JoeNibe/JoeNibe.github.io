@@ -48,7 +48,7 @@ en: &DEFAULT_EN
   search_label_text          : "Enter your search term..."
   search_placeholder_text    : "Enter your search term..."
   results_found              : "Result(s) found"
-  back_to_top                : "Back to top"
+  back_to_top                : "TOP"
 en-US:
   <<: *DEFAULT_EN
 en-CA:
