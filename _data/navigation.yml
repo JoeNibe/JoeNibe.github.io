@@ -10,8 +10,6 @@ main:
     url: /tags/
   - title: "Posts"
     url: /year-archive/
-  - title: "Search"
-    url: /search/
 # sidebar navigation list sample
 sidebar-sample:
   - title: "Parent Page A"
