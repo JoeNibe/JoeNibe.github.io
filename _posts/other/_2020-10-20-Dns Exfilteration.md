@@ -111,7 +111,7 @@ But we have two challenges
 2. **We cannot append special characters which means we have the encode the data before appending it.**  
     My first idea was to encode the commands as base64. But this failed miserably as I realized that the DNS requests only contains lower case characters. Hence our data will be lost. The alternative is to ascii encode the characters as hex and send them over and then decode it. 
     
-## RCE using Exfilteration
+## Exfilteration RCE Output
 
 After some more research, I found an a very good [script](https://gallery.technet.microsoft.com/DNS-based-data-exfiltration-fc48e292) that can do both the splitting and encoding.
 
