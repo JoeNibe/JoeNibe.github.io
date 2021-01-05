@@ -1,7 +1,7 @@
 ---
 layout: single_c
-title:  "DNS Exfilteration"
-date:   2020-10-20 10:43:16 +0530
+title:  "RCE and DNS Exfilteration"
+date:   2020-12-27 10:43:16 +0530
 toc: true
 categories: Web
 tags: DNS
