@@ -1,6 +1,6 @@
 ---
 layout: single_c
-title:  "RCE and DNS Exfilteration"
+title:  "Blind RCE and DNS Exfilteration"
 date:   2020-12-27 10:43:16 +0530
 toc: true
 categories: Web
