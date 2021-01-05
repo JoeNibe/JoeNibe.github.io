@@ -4,11 +4,10 @@ title:  "RCE and DNS Exfilteration"
 date:   2020-12-27 10:43:16 +0530
 toc: true
 categories: Web
-tags: DNS
+tags: DNS, RCE
 classes: wide
 ---
-## Description
-
+## Description:
 I was doing a security testing against a web server running `WebLogic`. A potential RCE due to CVE-2019-2725 was reported and I was verifying it.
 I was following the PoC given [here](http://www.0xby.com/1589.html). 
 
