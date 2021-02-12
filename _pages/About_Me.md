@@ -8,7 +8,7 @@ classes: wide
 Hi, I am Febin Jose and I am a security enthusiast. I love making scripts and automating stuff for improving security. I started my security career as a Security Analyst at EY in 2019. 
 
 ## Certification
-I love completing certifications and they help me staying updated. Currently I have the following certifications.
+I love completing certifications and they help me stay updated. Currently I have the following certifications.
 
 ![image1]({{ site.url }}{{ site.baseurl }}/assets/images/certs/ey.png){:height="100px" width="100px"}![image1]({{ site.url }}{{ site.baseurl }}/assets/images/certs/ccna.png){:height="100px" width="100px"}![image1]({{ site.url }}{{ site.baseurl }}/assets/images/certs/sec+.png){:height="100px" width="100px"}
 
