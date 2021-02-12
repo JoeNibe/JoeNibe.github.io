@@ -5,7 +5,7 @@ author_profile: true
 classes: wide
 ---
 
-Hi, I am Febin Jose and I am a security enthusiast. I love making scripts and automating stuff for improving security. I started my security career as a Security Analyst at EY in 2019. 
+Hi, I am Febin Jose and I am a security enthusiast. I love making scripts and automating stuff for improving security. You can find writeups for various CTFs, online security challenges and other security issues I encounter in this blog.
 
 ## Certification
 I love completing certifications and they help me stay updated. Currently I have the following certifications.
