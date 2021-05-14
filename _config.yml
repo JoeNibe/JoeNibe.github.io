@@ -307,7 +307,16 @@ defaults:
       layout: single
       author_profile: true
 
-
+# _portfolio
+  - scope:
+      path: ""
+      type: projects
+    values:
+      layout: single
+      author_profile: false
+      share: true
+      
 collections:
     projects:
         output: true
+        permalink: /:collection/:path/
