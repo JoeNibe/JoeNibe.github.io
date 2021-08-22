@@ -1,6 +1,6 @@
 ---
 layout: single_c
-title:  "Initigriti XSS Challenge"
+title:  "Initigriti XSS Challenge 0821"
 date:   2018-12-27 10:43:16 +0530
 toc: true
 categories: Web
@@ -8,7 +8,7 @@ tags: XSS
 classes: wide
 ---
 ## Description:
-The challenge is to find an XSS vulnerability on https://challenge-0821.intigriti.io. This was a guest challenge created by https://twitter.com/WHOISbinit!
+The challenge is to find an XSS vulnerability on [https://challenge-0821.intigriti.io](https://challenge-0821.intigriti.io). This was a guest challenge created by [https://twitter.com/WHOISbinit!](https://challenge-0821.intigriti.io)
 
 
 Let's dive in and see if we can trigger an xss
@@ -18,7 +18,7 @@ Let's dive in and see if we can trigger an xss
 
 ![image1]({{ site.url }}{{ site.baseurl }}/assets/images/xss/1.png){: .align-center}
 
-The page contains a welcome message a a bunch of links inside an `iframe` that point to `cooking.html`, which on being clicked changes the page a bit with additional stuff being added. The links contain some base64 data at the end.
+The page contains a welcome message and a bunch of links inside an `iframe` that point to `cooking.html`, which on being clicked changes the page a bit with additional stuff being added. The links contain some base64 data at the end.
 
 
 ```
@@ -55,9 +55,9 @@ const handleLoad = () => {
 
 window.addEventListener("load", handleLoad);
 ```
-1. When the page loads, the script check for a cookie named `username` and creates one if it doesn't exist. The cookie value of the format `unknownUser` + a random number. 
+1. When the page loads, the script check for a cookie named `username` and creates one if it doesn't exist. The cookie value is of the format `unknownUser` + a random number. 
 
-2. Take the base64 encoded string, decodes it and separates it into parameters.
+2. Take the base64 encoded string, decodes it and separates it into parameters using `deparam`.
 
 3. Call `ga()` function which is an initializer of google analytics code.
 
@@ -74,7 +74,9 @@ function welcomeUser(username) {
 }
 ```
 
-The script mainly used `.innerText` to set the values throughout the script with an exception for username, which is set using `innetHTML`. `.innerText` can mitigate xss if used properly and that seems to be the case here. The only way to gain xss is by changing the value of username. 
+The script mainly uses `.innerText` to set the dynamic values throughout the script with an exception for username, which is set using `.innerHTML`. `.innerText` can mitigate xss if used properly and that seems to be the case here. Therefore the only way to gain xss is by changing the value of `username`. 
+
+## Analysis
 
 ```js
 // As we are a professional company offering XSS recipes, we want to create a nice user experience where the user can have a cool name that is shown on the screen
@@ -82,8 +84,6 @@ The script mainly used `.innerText` to set the values throughout the script with
 // This way no XSS will ever be possible because you cannot change the cookie unless you do it yourself!
 
 ```
-
-## Analysis
 
 And as written in comments the user has no control over the value of the cookie as it is set to specific string. Once we control the value of the cookie, xss should be trivial.
 
@@ -93,7 +93,7 @@ After looking around for almost a day, I couldn't really find any way to control
 TIP 1: The Google Analytics script was not just included for tracking all of you, it may or may not contain some useful gadget!
 ```
 
-Hmm so the xss seems to be somehow related to google anlytics. Another day of searching and fiddling about gave nothing useful. I just took a break and got busy with work. A few days later the second hint dropped. 
+Hmm so the xss seems to be somehow related to google anlaytics. Another day of searching and fiddling about gave nothing useful. I took a break and got busy with my work and a few days later the second hint was dropped. 
 
 ```
 TIP 2: Wait, you're telling me that deparam script hasn't been updated in 5 years? That can't be good!
@@ -123,7 +123,7 @@ Here the code checks if the `user` has a parameter called `admin`. It is possibl
 Object.prototype.admin = true;
 ```
 
-So back to out challenge, we now have a prototype pollution and we need to figure out a way to set the cookie using this. Looking at the first tip again and after some searching on the web, I found out that google anaytics has a cookie injection due to prototype pollution. The PoC can be found [here](https://github.com/BlackFan/client-side-prototype-pollution/blob/master/gadgets/google-analytics.md#google-analytics).
+So back to our challenge, we now have a prototype pollution and we need to figure out a way to set the cookie using this. Looking at the first tip again and after some searching on the web, I found out that google anaytics has a cookie injection due to prototype pollution. The PoC can be found [here](https://github.com/BlackFan/client-side-prototype-pollution/blob/master/gadgets/google-analytics.md#google-analytics).
 
 ```js
 ?__proto__[cookieName]=COOKIE%3DInjection%3B
@@ -157,7 +157,7 @@ welcomeUser(readCookie('username'));
 ```
 
 1. The function accepts a parameter `name` which is set as `username` by the `main.js` script. It create a variable `nameEQ` that contains the value `username=`.
-2. It takes the value of the first cookie `document.cookie` by split it at `;`.
+2. It takes the value of the first cookie in `document.cookie` by splitting it at `;`.
 3. Removes any starting whitespace and returns the value of the cookie which is then later set using `.innerHTML`.
 
 Looking at the code, there are two ways we can solve this. 
@@ -179,11 +179,11 @@ btoa("__proto__[cookieName]=username%3DInjection%3Bpath=/value")
 "X19wcm90b19fW2Nvb2tpZU5hbWVdPXVzZXJuYW1lJTNESW5qZWN0aW9uJTNCcGF0aD0vdmFsdWU="
 ```
 
-That failed miserably as everything after the `;` (%3B) got ignored. We can't change the cookie path this way.After spending quite some time trying different encoding and alternatives of `;`. Someone in discord suggested reading the [cookie RFC 6265](https://datatracker.ietf.org/doc/html/rfc6265) and I saw something related to using `CRLF` (\r\n) for cookie folding. I was not really sure what it does but thought I will try using that instead of `;`.
+That failed miserably as everything after the `;` (%3B) got ignored. We can't change the cookie path this way. After spending quite some time trying different encoding and alternatives of `;`I went back to discord and someone suggested reading the [cookie RFC 6265](https://datatracker.ietf.org/doc/html/rfc6265) and I saw something related to using `CRLF` (\r\n) for cookie folding. I was not really sure what it does but thought I will try using that instead of `;`.
 
 ![image1]({{ site.url }}{{ site.baseurl }}/assets/images/xss/a_order.png){: .align-center}
 
-And for some reason that I did not understand, the cookie path was set to `/challenge` and the we have successfully changed the `document.cookie` order. Now all we have to do it change the cookie payload. So the final payload was
+And for some reason that I still trying to figure out, the cookie path was set to `/challenge` and the we have successfully changed the `document.cookie` order. Now all we have to do it change the cookie payload. So the final payload was
 
 ```js
 btoa("__proto__[cookieName]=username%3d<img%20src%3d'x'%20onerror%3dalert(document.domain)>\r\n%3b")
