@@ -1,7 +1,7 @@
 ---
 layout: single_c
 title:  "Initigriti XSS Challenge"
-date:   2020-12-27 10:43:16 +0530
+date:   2018-12-27 10:43:16 +0530
 toc: true
 categories: Web
 tags: XSS
@@ -15,6 +15,8 @@ Let's dive in a see if we can trigger an xss
 
 
 ## Analysis
+
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/1.png){: .align-center}
 
 The page contains a welcome message a a bunch of links inside an `iframe` that point to `cooking.html`, which on being clicked changes the page a bit with additional stuff being added. The links contain some base64 data at the end.
 
@@ -30,7 +32,7 @@ https://challenge-0821.intigriti.io/challenge/cooking.html?recipe=title=The%20ba
 
 The title contains the data that is populated in the page. Everything points at DOM XSS as the base64 data seems to be processed on client side. Let's look at the source to find how the values are being injected. 
 
-image main.js
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/main_js.png){: .align-center}
 
 There is a file named `main.js` that seems to be doing all the heavy lifting. Here is the break down of what it does. 
 
@@ -99,7 +101,7 @@ TIP 2: Wait, you're telling me that deparam script hasn't been updated in 5 year
 
 Okay that seems to be a bit more interesting. I searched for `deparam` vulnerabilities and got a hit.
 
-image deparam
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/deparam.png){: .align-center}
 
 `deparam` has a `Prototype Pollution` vulnerability and this was the first time I have heard about such a thing. So more searching later, I found [this](https://research.securitum.com/prototype-pollution-and-bypassing-client-side-html-sanitizers/) really good article that explains it in detail. 
 
@@ -136,7 +138,7 @@ btoa("__proto__[cookieName]=COOKIE%3DInjection%3B")
 "X19wcm90b19fW2Nvb2tpZU5hbWVdPUNPT0tJRSUzREluamVjdGlvbiUzQg=="
 ```
 
-IMAGE COOKIE TRY
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/cookie_try.png){: .align-center}
 
 Although the script threw some errors (cause we did not include the full payload) the cookie has been successfully injected. Let's look back at the `readCookie` function to figure out how to exploit this.
 
@@ -165,7 +167,7 @@ Insert a cookie named `username` in a way that `document.cookie` returns our val
 
 I started playing around with cookies to understand how the order of `document.cookies` is determined. The domain is looked at first and the cookie with same domain as the current domain comes first. If domains are same then the path is looked at next. The one with a path values is returned first.
 
-image cookie list order
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/cookie_order.png){: .align-center}
 
 In this example the cookie with value `mycookie1` comes first as it has the same domain as the `username` cookie set by the `main.js` script.
 
@@ -179,7 +181,7 @@ btoa("__proto__[cookieName]=username%3DInjection%3Bpath=/value")
 
 That failed miserably as everything after the `;` (%3B) got ignored. We can't change the cookie path this way.After spending quite some time trying different encoding and alternatives of `;`. Someone in discord suggested reading the [cookie RFC 6265](https://datatracker.ietf.org/doc/html/rfc6265) and I saw something related to using `CRLF` (\r\n) for cookie folding. I was not really sure what it does but thought I will try using that instead of `;`.
 
-IMGAE cookie \r\n
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/a_order.png){: .align-center}
 
 And for some reason that I did not understand, the cookie path was set to `/challenge` and the we have successfully changed the `document.cookie` order. Now all we have to do it change the cookie payload. So the final payload was
 
@@ -189,7 +191,8 @@ btoa("__proto__[cookieName]=username%3d<img%20src%3d'x'%20onerror%3dalert(docume
 "X19wcm90b19fW2Nvb2tpZU5hbWVdPXVzZXJuYW1lJTNkPGltZyUyMHNyYyUzZCd4JyUyMG9uZXJyb3IlM2RhbGVydChkb2N1bWVudC5kb21haW4pPg0KJTNi"
 ```
 
-IMGAE popup 1
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/a_popup.png){: .align-center}
+
 And we get a pop up with the domain name.
 
 
@@ -214,7 +217,8 @@ btoa("__proto__[cookieName]=username%3d<img%20src%3d'x'%20onerror%3dalert(docume
 "X19wcm90b19fW2Nvb2tpZU5hbWVdPXVzZXJuYW1lJTNkPGltZyUyMHNyYyUzZCd4JyUyMG9uZXJyb3IlM2RhbGVydChkb2N1bWVudC5kb21haW4pPiUzYiZfX3Byb3RvX19bY29va2llUGF0aF09L2NoYWxsZW5nZSUzYg=="
 ```
 
-IMAGE XSS
+![image1]({{ site.url }}{{ site.baseurl }}/images/xss/b_popup.png){: .align-center}
+
 
 And that works too.
 
