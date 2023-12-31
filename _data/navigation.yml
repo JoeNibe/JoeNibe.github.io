@@ -3,7 +3,7 @@ main:
   - title: "Home"
     url: /index.html
   - title: "Whoami"
-    url: "https://joenibe.netlify.app/"
+    url: "/index.html"
   - title: "Categories"
     url: /categories/
   - title: "Tags"
